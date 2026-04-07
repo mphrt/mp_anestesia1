@@ -203,6 +203,7 @@ def main():
 
     marca = st.text_input("MARCA")
     modelo = st.text_input("MODELO")
+    ideq = st.text_input("IDEQ")
     sn = st.text_input("NÚMERO DE SERIE")
     inventario = st.text_input("NÚMERO DE INVENTARIO")
     fecha = st.date_input("FECHA", value=datetime.date.today())
@@ -221,51 +222,51 @@ def main():
         return respuestas
 
     chequeo_visual = checklist("1.      Chequeo Visual", [
-        "1.1.           Carcasa Frontal y Trasera",
-        "1.2.           Estado de Software",
-        "1.3.           Panel frontal",
-        "1.4.           Batería de respaldo"
+        "1.1.            Carcasa Frontal y Trasera",
+        "1.2.            Estado de Software",
+        "1.3.            Panel frontal",
+        "1.4.            Batería de respaldo"
     ])
-    sistema_alta = checklist("2.        Sistema de Alta Presión", [
-        "2.1.           Chequeo de yugo de O2, N2O, Aire",
-        "2.2.           Revisión o reemplazo de empaquetadura de yugo",
-        "2.3.           Verificación de entrada de presión",
-        "2.4.           Revisión y calibración de válvulas de flujometro de O2, N2O, Aire"
+    sistema_alta = checklist("2.         Sistema de Alta Presión", [
+        "2.1.            Chequeo de yugo de O2, N2O, Aire",
+        "2.2.            Revisión o reemplazo de empaquetadura de yugo",
+        "2.3.            Verificación de entrada de presión",
+        "2.4.            Revisión y calibración de válvulas de flujometro de O2, N2O, Aire"
     ])
-    sistema_baja = checklist("3.        Sistema de baja presión", [
-        "3.1.           Revisión y calibración de válvula de flujómetro de N2O",
-        "3.2.           Revisión y calibración de válvula de flujometro de O2",
-        "3.3.           Revisión y calibración de válvula de flujometro de Aire",
-        "3.4.           Chequeo de fugas",
-        "3.5.           Verificación de flujos",
-        "3.6.           Verificación de regulador de 2da etapa",
-        "3.7.           Revisión de sistema de corte N2O/Aire por falta de O2",
-        "3.8.           Revisión de sistema proporción de O2/N2O",
-        "3.9.           Revisión de manifold de vaporizadores"
+    sistema_baja = checklist("3.         Sistema de baja presión", [
+        "3.1.            Revisión y calibración de válvula de flujómetro de N2O",
+        "3.2.            Revisión y calibración de válvula de flujometro de O2",
+        "3.3.            Revisión y calibración de válvula de flujometro de Aire",
+        "3.4.            Chequeo de fugas",
+        "3.5.            Verificación de flujos",
+        "3.6.            Verificación de regulador de 2da etapa",
+        "3.7.            Revisión de sistema de corte N2O/Aire por falta de O2",
+        "3.8.            Revisión de sistema proporción de O2/N2O",
+        "3.9.            Revisión de manifold de vaporizadores"
     ])
     sistema_absorbedor = checklist("4.      Sistema absorbedor", [
-        "4.1.           Revisión o reemplazo de empaquetadura de canister",
-        "4.2.           Revisión de válvula APL",
-        "4.3.           Verificación de manómetro de presión de vía aérea",
-        "4.4.           Revisión de válvula inhalatoria",
-        "4.5.           Revisión de válvula exhalatoria",
-        "4.6.           Chequeo de fugas",
-        "4.7.           Hermeticidad"
+        "4.1.            Revisión o reemplazo de empaquetadura de canister",
+        "4.2.            Revisión de válvula APL",
+        "4.3.            Verificación de manómetro de presión de vía aérea",
+        "4.4.            Revisión de válvula inhalatoria",
+        "4.5.            Revisión de válvula exhalatoria",
+        "4.6.            Chequeo de fugas",
+        "4.7.            Hermeticidad"
     ])
-    ventilador_mecanico = checklist("5.     Ventilador mecánico", [
-        "5.1.           Porcentaje de oxígeno",
-        "5.2.           Volumen corriente y volumen minuto",
-        "5.3.           Presión de vía aérea",
-        "5.4.           Frecuencia respiratoria",
-        "5.5.           Modo ventilatorio",
-        "5.6.           Alarmas",
+    ventilador_mecanico = checklist("5.      Ventilador mecánico", [
+        "5.1.            Porcentaje de oxígeno",
+        "5.2.            Volumen corriente y volumen minuto",
+        "5.3.            Presión de vía aérea",
+        "5.4.            Frecuencia respiratoria",
+        "5.5.            Modo ventilatorio",
+        "5.6.            Alarmas",
         "5.7. Calibración de celda de oxígeno a 21% y al 100%",
         "5.8. Calibración de sensores de flujo"
     ])
-    seguridad_electrica = checklist("6.     Seguridad eléctrica", [
-        "6.1.           Corriente de fuga",
-        "6.2.           Tierra de protección",
-        "6.3.           Aislación"
+    seguridad_electrica = checklist("6.      Seguridad eléctrica", [
+        "6.1.            Corriente de fuga",
+        "6.2.            Tierra de protección",
+        "6.3.            Aislación"
     ])
 
     st.subheader("    7. Instrumentos de análisis")
@@ -288,7 +289,7 @@ def main():
                 st.write("")
                 if st.button("−", key=f"remove_btn_{i}"):
                     st.session_state.analisis_equipos.pop(i)
-                    st.experimental_rerun()
+                    st.rerun()
     st.button("Agregar Equipo +", on_click=add_equipo)
 
     observaciones = st.text_area("    Observaciones")
@@ -361,6 +362,15 @@ def main():
         except Exception:
             st.warning("No se pudo cargar el logo. Deja 'logo_hrt_final.jpg' junto al script.")
 
+        # --- SECCIÓN IDEQ (ARRIBA A LA DERECHA) ---
+        pdf.set_font("Arial", "B", 7.5)
+        ideq_label = f"IDEQ: {ideq}"
+        ideq_w = pdf.get_string_width(ideq_label) + 6
+        pdf.set_xy(page_w - SIDE_MARGIN - ideq_w, logo_y)
+        pdf.set_fill_color(230, 230, 230)
+        pdf.cell(ideq_w, 5, ideq_label, border=1, ln=0, align="C", fill=True)
+
+        # Título centrado respecto al área restante
         pdf.set_font("Arial", "B", 7)
         title_h = 5.0
         title_x = logo_x + LOGO_W_MM + sep
@@ -377,19 +387,16 @@ def main():
         pdf.set_font("Arial", "", 7.5)
         line_h = 3.4
 
-        # >>> LABEL WIDTH AUTO + EXTRA PUSH >>>
-        # Calculamos el ancho real del texto más largo de las etiquetas
         label_texts = ["MARCA", "MODELO", "NÚMERO DE SERIE", "NÚMERO DE INVENTARIO", "UBICACIÓN"]
         text_widths = [pdf.get_string_width(t) for t in label_texts]
         max_label_text_w = max(text_widths) if text_widths else 28.0
 
-        LABEL_PAD = 4.0      # padding natural junto a la etiqueta
-        EXTRA_PUSH = 8.0     # empuje extra para llevar ":" más a la derecha (ajusta a 10–12 si quieres)
+        LABEL_PAD = 4.0      
+        EXTRA_PUSH = 8.0     
         label_w_common = max_label_text_w + LABEL_PAD + EXTRA_PUSH
 
         COLON_W = 1.8
-        GAP_AFTER_COLON = 1.6  # un pelín más para respirar
-        # <<< LABEL WIDTH AUTO + EXTRA PUSH <<<
+        GAP_AFTER_COLON = 1.6  
 
         y_marca = pdf.get_y()
         date_col_w   = 11.0
@@ -400,19 +407,16 @@ def main():
         gap_lab_box  = 1.8
         x_label_fecha = x_date - fecha_label_w - gap_lab_box
 
-        # ------ MARCA (con ":" en columna fija y más a la derecha) ------
         pdf.set_xy(FIRST_COL_LEFT, y_marca)
         pdf.cell(label_w_common, line_h, "MARCA", 0, 0, "L")
         pdf.cell(COLON_W, line_h, ":", 0, 0, "C")
 
-        # El valor debe terminar ANTES de la fecha: respetamos un margen de seguridad
         SAFE_GAP_BEFORE_DATE = 2.0
         x_value_start = FIRST_COL_LEFT + label_w_common + COLON_W + GAP_AFTER_COLON
         max_value_right = x_label_fecha - SAFE_GAP_BEFORE_DATE
         value_w_line1 = max(10, max_value_right - x_value_start)
         pdf.cell(value_w_line1, line_h, f"{marca}", 0, 0, "L")
 
-        # FECHA (igual que antes)
         pdf.set_xy(x_label_fecha, y_marca); pdf.set_font("Arial", "B", 7.5)
         pdf.cell(fecha_label_w, line_h, "FECHA:", 0, 0, "R")
         pdf.set_font("Arial", "", 7.5)
@@ -423,7 +427,6 @@ def main():
         pdf.cell(date_col_w, line_h, yyyy, 1, 0, "C")
         pdf.ln(line_h)
 
-        # Función genérica (aplica el mismo ancho de etiqueta ampliado)
         def left_field(lbl, val):
             pdf.set_x(FIRST_COL_LEFT)
             pdf.cell(label_w_common, line_h, f"{lbl}", 0, 0, "L")
@@ -491,7 +494,6 @@ def main():
                               item_w=ITEM_W, col_w=COL_W, row_h=3.4,
                               head_fs=7.2, cell_fs=6.2, indent_w=5.0, title_tab_spaces=2)
 
-        # ======= 7. Instrumentos de análisis =======
         TAB = "  " * 2
         pdf.set_x(SECOND_COL_LEFT)
         pdf.set_fill_color(230, 230, 230); pdf.set_text_color(0, 0, 0)
@@ -502,14 +504,12 @@ def main():
         y_bottom_analisis = draw_analisis_columns(pdf, SECOND_COL_LEFT, pdf.get_y(), col_total_w, st.session_state.analisis_equipos)
         pdf.set_y(y_bottom_analisis)
 
-        # ---------- Observaciones ----------
         draw_boxed_text_auto(pdf, x=SECOND_COL_LEFT, y=pdf.get_y(),
-                             w=col_total_w, min_h=10,
-                             title=f"{TAB}Observaciones", text=observaciones,
-                             head_h=4.6, fs_head=7.2, fs_body=7.0, body_line_h=3.2, padding=1.2)
+                              w=col_total_w, min_h=10,
+                              title=f"{TAB}Observaciones", text=observaciones,
+                              head_h=4.6, fs_head=7.2, fs_body=7.0, body_line_h=3.2, padding=1.2)
         pdf.ln(2)
 
-        # ---------- Equipo Operativo + Nombre/Firma + Empresa ----------
         y_equipo_op = pdf.get_y()
         draw_si_no_boxes(pdf, x=SECOND_COL_LEFT, y=y_equipo_op, selected=operativo, size=4.5, label_w=40)
         pdf.ln(1.6)
@@ -528,14 +528,12 @@ def main():
         pdf.cell(0, 4.0, f"EMPRESA RESPONSABLE: {empresa}", 0, 1)
         pdf.ln(2.0)
 
-        # ---------- Observaciones (uso interno) ----------
         draw_boxed_text_auto(pdf, x=SECOND_COL_LEFT, y=pdf.get_y(),
-                             w=col_total_w, min_h=10,
-                             title=f"{TAB}Observaciones (uso interno)", text=observaciones_interno,
-                             head_h=4.6, fs_head=7.2, fs_body=7.0, body_line_h=3.2, padding=1.2)
+                              w=col_total_w, min_h=10,
+                              title=f"{TAB}Observaciones (uso interno)", text=observaciones_interno,
+                              head_h=4.6, fs_head=7.2, fs_body=7.0, body_line_h=3.2, padding=1.2)
         pdf.ln(2)
 
-        # ---------- Firmas de recepción ----------
         ancho_area = col_total_w
         center_left  = SECOND_COL_LEFT + (ancho_area * 0.25)
         center_right = SECOND_COL_LEFT + (ancho_area * 0.75)
@@ -551,26 +549,13 @@ def main():
 
         sig_w = min(65, line_len - 6)
         sig_h = 20
-
-        SIG_OFF_X_LEFT  = 15
-        SIG_OFF_Y_LEFT  = 0
-        SIG_OFF_X_RIGHT = 15
-        SIG_OFF_Y_RIGHT = 0
-
         y_top = pdf.get_y()
         y_sig = y_top + 2.0
-
         x_line_left  = center_left  - line_len / 2.0
         x_line_right = center_right - line_len / 2.0
 
-        add_signature_inline(pdf, canvas_result_ingenieria,
-                             x=center_left - sig_w/2.0 + SIG_OFF_X_LEFT,
-                             y=y_sig + SIG_OFF_Y_LEFT,
-                             w_mm=sig_w, h_mm=sig_h)
-        add_signature_inline(pdf, canvas_result_clinico,
-                             x=center_right - sig_w/2.0 + SIG_OFF_X_RIGHT,
-                             y=y_sig + SIG_OFF_Y_RIGHT,
-                             w_mm=sig_w, h_mm=sig_h)
+        add_signature_inline(pdf, canvas_result_ingenieria, x=center_left - sig_w/2.0 + 15, y=y_sig, w_mm=sig_w, h_mm=sig_h)
+        add_signature_inline(pdf, canvas_result_clinico, x=center_right - sig_w/2.0 + 15, y=y_sig, w_mm=sig_w, h_mm=sig_h)
 
         y_line = y_sig + sig_h + 3.0
         pdf.set_draw_color(0, 0, 0)
@@ -579,15 +564,11 @@ def main():
 
         pdf.set_xy(x_line_left,  y_line + 0.8)
         pdf.cell(line_len, 3.6, "RECEPCIÓN CONFORME", 0, 2, 'C')
-        pdf.set_xy(x_line_left,  pdf.get_y())
         pdf.cell(line_len, 3.6, "PERSONAL INGENIERÍA CLÍNICA", 0, 0, 'C')
 
         pdf.set_xy(x_line_right, y_line + 0.8)
         pdf.cell(line_len, 3.6, "RECEPCIÓN CONFORME", 0, 2, 'C')
-        pdf.set_xy(x_line_right, pdf.get_y())
         pdf.cell(line_len, 3.6, "PERSONAL CLÍNICO", 0, 0, 'C')
-
-        pdf.set_y(max(y_line + 7, pdf.get_y()))
 
         out = pdf.output(dest="S")
         if isinstance(out, str):
@@ -598,7 +579,7 @@ def main():
         st.download_button(
             "Descargar PDF",
             out,
-            file_name=f"MP_Anestesia_{sn}.pdf",
+            file_name=f"MP_Anestesia_{ideq}_{sn}.pdf", # Cambio en el nombre del archivo
             mime="application/pdf"
         )
 
