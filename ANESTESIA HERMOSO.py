@@ -576,10 +576,13 @@ def main():
         else:
             out = bytes(out)
 
+        # Nombre del archivo comenzando con IDEQ
+        nombre_archivo = f"{ideq}_MP_Anestesia_{sn}.pdf"
+
         st.download_button(
             "Descargar PDF",
             out,
-            file_name=f"MP_Anestesia_{ideq}_{sn}.pdf", # Cambio en el nombre del archivo
+            file_name=nombre_archivo,
             mime="application/pdf"
         )
 
