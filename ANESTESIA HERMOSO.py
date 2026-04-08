@@ -119,23 +119,23 @@ def create_checkbox_table(pdf, section_title, items, x_pos, item_w, col_w,
     if subtitle:
         pdf.set_x(x_pos)
         pdf.set_font("Arial", "I", cell_fs)
-        # Ajuste: Si no hay header, solo ponemos borde derecho para el subtítulo (eliminado 'T')
-        border_type = "R" if draw_header else "R"
+        # Sin borde izquierdo (R = Right, T = Top si no hay header)
+        border_type = "R" if draw_header else "RT"
         pdf.cell(item_w + (col_w * 3), row_h, f"{title_prefix}  {subtitle}", border=border_type, ln=1, align="L")
 
     pdf.set_font("Arial", "", cell_fs)
     for item, value in items:
         pdf.set_x(x_pos)
-        # Sin bordes izquierdos ni verticales en la descripción del ítem
+        # Eliminado borde "L" (izquierdo) de la celda de indentación y del ítem
         pdf.cell(indent_w, row_h, "", border=0, ln=0)
         pdf.cell(max(1, item_w - indent_w), row_h, item, border=0, ln=0, align="L")
-        # Las celdas de chequeo mantienen bordes completos (cajas)
+        # Las celdas de OK/NO/N/A mantienen sus bordes para las cajas
         pdf.cell(col_w, row_h, "X" if value == "OK" else "", border=1, ln=0, align="C")
         pdf.cell(col_w, row_h, "X" if value == "NO" else "", border=1, ln=0, align="C")
         pdf.cell(col_w, row_h, "X" if value == "N/A" else "", border=1, ln=1, align="C")
     
     if draw_footer:
-        # Eliminada la línea horizontal de cierre
+        # Eliminada la línea horizontal de cierre ("T")
         pdf.ln(1.6)
 
 def draw_boxed_text_auto(pdf, x, y, w, min_h, title, text,
@@ -254,6 +254,18 @@ def main():
     tecnico = st.text_input("NOMBRE TÉCNICO/INGENIERO")
     empresa = st.text_input("EMPRESA RESPONSABLE")
 
+    st.subheader("Firmas")
+    col_tecnico, col_ingenieria, col_clinico = st.columns(3)
+    with col_tecnico:
+        st.write("Técnico Encargado:")
+        canvas_result_tecnico = st_canvas(fill_color="rgba(255,165,0,0.3)", stroke_width=3, stroke_color="#000000", background_color="#EEEEEE", height=190, width=360, drawing_mode="freedraw", key="canvas_tecnico")
+    with col_ingenieria:
+        st.write("Ingeniería Clínica:")
+        canvas_result_ingenieria = st_canvas(fill_color="rgba(255,165,0,0.3)", stroke_width=3, stroke_color="#000000", background_color="#EEEEEE", height=190, width=360, drawing_mode="freedraw", key="canvas_ingenieria")
+    with col_clinico:
+        st.write("Personal Clínico:")
+        canvas_result_clinico = st_canvas(fill_color="rgba(255,165,0,0.3)", stroke_width=3, stroke_color="#000000", background_color="#EEEEEE", height=190, width=360, drawing_mode="freedraw", key="canvas_clinico")
+
     if st.button("Generar PDF"):
         SIDE_MARGIN = 9; TOP_MARGIN  = 4
         pdf = PDF('L', 'mm', 'A4', footer_lines=FOOTER_LINES)
@@ -319,10 +331,29 @@ def main():
         pdf.set_y(y_analisis); draw_boxed_text_auto(pdf, SECOND_COL_LEFT, pdf.get_y(), col_total_w, 8, "  Observaciones", observaciones)
         pdf.ln(2); draw_si_no_boxes(pdf, SECOND_COL_LEFT, pdf.get_y(), operativo, size=4.5, label_w=40)
 
-        # --- SECCIÓN TÉCNICO ---
+        # --- SECCIÓN TÉCNICO (SIN NEGRITA) ---
         pdf.ln(2); pdf.set_x(SECOND_COL_LEFT); pdf.set_font("Arial", "", 7.5)
         pdf.cell(0, 4, f"NOMBRE TÉCNICO/INGENIERO: {tecnico}", 0, 1)
-        pdf.cell(0, 4, f"EMPRESA RESPONSABLE: {empresa}", 0, 1)
+        y_firma_tec = pdf.get_y() + 1; pdf.set_x(SECOND_COL_LEFT); pdf.cell(14, 4, "FIRMA:", 0, 0)
+        add_signature_inline(pdf, canvas_result_tecnico, x=pdf.get_x() + 2, y=y_firma_tec, w_mm=50, h_mm=12)
+        pdf.set_y(y_firma_tec + 14); pdf.set_x(SECOND_COL_LEFT); pdf.cell(0, 4, f"EMPRESA RESPONSABLE: {empresa}", 0, 1)
+
+        pdf.ln(2); draw_boxed_text_auto(pdf, SECOND_COL_LEFT, pdf.get_y(), col_total_w, 8, "  Observaciones (uso interno)", observaciones_interno)
+
+        # --- SECCIÓN RECEPCIÓN CONFORME ---
+        pdf.ln(5); y_base_firmas = pdf.get_y(); ancho_medio = col_total_w / 2
+        centro_izq = SECOND_COL_LEFT + (ancho_medio / 2); centro_der = SECOND_COL_LEFT + ancho_medio + (ancho_medio / 2)
+        
+        add_signature_inline(pdf, canvas_result_ingenieria, x=0, y=y_base_firmas, w_mm=45, h_mm=15, center_on_x=centro_izq)
+        add_signature_inline(pdf, canvas_result_clinico, x=0, y=y_base_firmas, w_mm=45, h_mm=15, center_on_x=centro_der)
+        
+        y_linea = y_base_firmas + 16; largo_linea = 55
+        pdf.line(centro_izq - largo_linea/2, y_linea, centro_izq + largo_linea/2, y_linea)
+        pdf.line(centro_der - largo_linea/2, y_linea, centro_der + largo_linea/2, y_linea)
+        
+        pdf.set_font("Arial", "B", 6.5)
+        pdf.set_xy(centro_izq - largo_linea/2, y_linea + 1); pdf.multi_cell(largo_linea, 3, "RECEPCIÓN CONFORME\nPERSONAL INGENIERÍA CLÍNICA", 0, 'C')
+        pdf.set_xy(centro_der - largo_linea/2, y_linea + 1); pdf.multi_cell(largo_linea, 3, "RECEPCIÓN CONFORME\nPERSONAL CLÍNICO", 0, 'C')
 
         out = pdf.output(dest="S")
         st.download_button("Descargar PDF", bytes(out) if not isinstance(out, str) else out.encode("latin1"), file_name=f"{ideq}_MP_Anestesia_{sn}.pdf", mime="application/pdf")
