@@ -116,6 +116,7 @@ def create_checkbox_table(pdf, section_title, items, x_pos, item_w, col_w,
     if subtitle:
         pdf.set_x(x_pos)
         pdf.set_font("Arial", "I", cell_fs)
+        # Dibujamos el subtítulo con bordes laterales para consistencia
         pdf.cell(item_w + (col_w * 3), row_h, f"{title_prefix}  {subtitle}", border="LR", ln=1, align="L")
 
     pdf.set_font("Arial", "", cell_fs)
@@ -127,7 +128,7 @@ def create_checkbox_table(pdf, section_title, items, x_pos, item_w, col_w,
         pdf.cell(col_w, row_h, "X" if value == "NO" else "", border=1, ln=0, align="C")
         pdf.cell(col_w, row_h, "X" if value == "N/A" else "", border=1, ln=1, align="C")
     
-    # Línea de cierre inferior
+    # Línea de cierre inferior de la tabla
     pdf.set_x(x_pos)
     pdf.cell(item_w + (col_w * 3), 0.1, "", border="T", ln=1)
     pdf.ln(1.6)
@@ -199,7 +200,7 @@ def draw_analisis_columns(pdf, x_start, y_start, col_w, data_list):
 def main():
     st.title("Pauta de Mantenimiento Preventivo - Máquina de Anestesia")
 
-    # Datos Generales
+    # --- DATOS DE CABECERA ---
     marca = st.text_input("MARCA")
     modelo = st.text_input("MODELO")
     ideq = st.text_input("IDEQ")
@@ -218,6 +219,7 @@ def main():
             respuestas.append((item, seleccion))
         return respuestas
 
+    # --- SECCIONES ---
     chequeo_visual = checklist("1. Chequeo Visual", ["1.1. Carcasa Frontal y Trasera", "1.2. Estado de Software", "1.3. Panel frontal", "1.4. Batería de respaldo"])
     sistema_alta = checklist("2. Sistema de Alta Presión", ["2.1. Chequeo de yugo de O2, N2O, Aire", "2.2. Revisión o reemplazo de empaquetadura de yugo", "2.3. Verificación de entrada de presión", "2.4. Revisión y calibración de válvulas de flujometro de O2, N2O, Aire"])
     sistema_baja = checklist("3. Sistema de baja presión", ["3.1. Revisión y calibración de válvula de flujómetro de N2O", "3.2. Revisión y calibración de válvula de flujometro de O2", "3.3. Revisión y calibración de válvula de flujometro de Aire", "3.4. Chequeo de fugas", "3.5. Verificación de flujos", "3.6. Verificación de regulador de 2da etapa", "3.7. Revisión de sistema de corte N2O/Aire por falta de O2", "3.8. Revisión de sistema proporción de O2/N2O", "3.9. Revisión de manifold de vaporizadores"])
@@ -310,18 +312,21 @@ def main():
 
         # ======= COLUMNA DERECHA =======
         pdf.set_y(content_y_base)
-        # Seccion 5 con el subtitulo solicitado y todos los items en orden
+        # SECCIÓN 5: Ventilador mecánico con subtítulo en la cabecera
         create_checkbox_table(pdf, "5. Ventilador mecánico", ventilador_mecanico, SECOND_COL_LEFT, ITEM_W, COL_W, subtitle="Verifique que el equipo realiza las siguientes acciones:")
         
+        # SECCIÓN 6: Seguridad eléctrica
         create_checkbox_table(pdf, "6. Seguridad eléctrica", seguridad_electrica, SECOND_COL_LEFT, ITEM_W, COL_W)
         
+        # SECCIÓN 7: Instrumentos de análisis
         pdf.set_x(SECOND_COL_LEFT); pdf.set_font("Arial", "B", 7.5); pdf.cell(col_total_w, 4.0, "  7. Instrumentos de análisis", border=1, ln=1, fill=True)
         y_analisis = draw_analisis_columns(pdf, SECOND_COL_LEFT, pdf.get_y(), col_total_w, st.session_state.analisis_equipos)
         
+        # Observaciones y Estado Operativo
         pdf.set_y(y_analisis); draw_boxed_text_auto(pdf, SECOND_COL_LEFT, pdf.get_y(), col_total_w, 8, "  Observaciones", observaciones)
         pdf.ln(2); draw_si_no_boxes(pdf, SECOND_COL_LEFT, pdf.get_y(), operativo, size=4.5, label_w=40)
 
-        # --- SECCIÓN TÉCNICO (SIN NEGRITA) ---
+        # --- CAMPOS TÉCNICO Y FIRMA (SIN NEGRITA) ---
         pdf.ln(2); pdf.set_x(SECOND_COL_LEFT); pdf.set_font("Arial", "", 7.5)
         pdf.cell(0, 4, f"NOMBRE TÉCNICO/INGENIERO: {tecnico}", 0, 1)
         y_firma_tec = pdf.get_y() + 1; pdf.set_x(SECOND_COL_LEFT); pdf.cell(14, 4, "FIRMA:", 0, 0)
@@ -330,7 +335,7 @@ def main():
 
         pdf.ln(2); draw_boxed_text_auto(pdf, SECOND_COL_LEFT, pdf.get_y(), col_total_w, 8, "  Observaciones (uso interno)", observaciones_interno)
 
-        # --- SECCIÓN RECEPCIÓN CONFORME ---
+        # --- SECCIÓN RECEPCIÓN CONFORME (PIE DERECHA) ---
         pdf.ln(5); y_base_firmas = pdf.get_y(); ancho_medio = col_total_w / 2
         centro_izq = SECOND_COL_LEFT + (ancho_medio / 2); centro_der = SECOND_COL_LEFT + ancho_medio + (ancho_medio / 2)
         
