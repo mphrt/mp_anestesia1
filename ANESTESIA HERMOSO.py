@@ -119,22 +119,23 @@ def create_checkbox_table(pdf, section_title, items, x_pos, item_w, col_w,
     if subtitle:
         pdf.set_x(x_pos)
         pdf.set_font("Arial", "I", cell_fs)
-        # Borde superior opcional si no hay cabecera
-        border_type = "LR" if draw_header else "LRT"
+        # Sin borde izquierdo (R = Right, T = Top si no hay header)
+        border_type = "R" if draw_header else "RT"
         pdf.cell(item_w + (col_w * 3), row_h, f"{title_prefix}  {subtitle}", border=border_type, ln=1, align="L")
 
     pdf.set_font("Arial", "", cell_fs)
     for item, value in items:
         pdf.set_x(x_pos)
-        pdf.cell(indent_w, row_h, "", border="L", ln=0)
+        # Eliminado borde "L" (izquierdo) de la celda de indentación y del ítem
+        pdf.cell(indent_w, row_h, "", border=0, ln=0)
         pdf.cell(max(1, item_w - indent_w), row_h, item, border=0, ln=0, align="L")
+        # Las celdas de OK/NO/N/A mantienen sus bordes para las cajas
         pdf.cell(col_w, row_h, "X" if value == "OK" else "", border=1, ln=0, align="C")
         pdf.cell(col_w, row_h, "X" if value == "NO" else "", border=1, ln=0, align="C")
         pdf.cell(col_w, row_h, "X" if value == "N/A" else "", border=1, ln=1, align="C")
     
     if draw_footer:
-        pdf.set_x(x_pos)
-        pdf.cell(item_w + (col_w * 3), 0.1, "", border="T", ln=1)
+        # Eliminada la línea horizontal de cierre ("T")
         pdf.ln(1.6)
 
 def draw_boxed_text_auto(pdf, x, y, w, min_h, title, text,
@@ -312,13 +313,11 @@ def main():
         create_checkbox_table(pdf, "3. Sistema de Baja Presión", sistema_baja, FIRST_COL_LEFT, ITEM_W, COL_W)
         create_checkbox_table(pdf, "4. Sistema absorbedor", sistema_absorbedor, FIRST_COL_LEFT, ITEM_W, COL_W)
         
-        # 5.1 al 5.6 en col izquierda
         vm_col_izq = ventilador_mecanico[:6]
         create_checkbox_table(pdf, "5. Ventilador mecánico", vm_col_izq, FIRST_COL_LEFT, ITEM_W, COL_W, draw_footer=True)
 
         # ======= COLUMNA DERECHA =======
         pdf.set_y(content_y_base)
-        # PARTE 5.7 y 5.8: Sin cabecera (draw_header=False) para eliminar "5. Ventilador mecánico (Cont.) OK NO N/A"
         vm_col_der = ventilador_mecanico[6:]
         create_checkbox_table(pdf, "", vm_col_der, SECOND_COL_LEFT, ITEM_W, COL_W, 
                               subtitle="Verifique que el equipo realiza las siguientes acciones:", 
