@@ -119,7 +119,9 @@ def create_checkbox_table(pdf, section_title, items, x_pos, item_w, col_w,
     if subtitle:
         pdf.set_x(x_pos)
         pdf.set_font("Arial", "I", cell_fs)
-        pdf.cell(item_w + (col_w * 3), row_h, f"{title_prefix}  {subtitle}", border="LR", ln=1, align="L")
+        # Borde superior opcional si no hay cabecera
+        border_type = "LR" if draw_header else "LRT"
+        pdf.cell(item_w + (col_w * 3), row_h, f"{title_prefix}  {subtitle}", border=border_type, ln=1, align="L")
 
     pdf.set_font("Arial", "", cell_fs)
     for item, value in items:
@@ -310,16 +312,17 @@ def main():
         create_checkbox_table(pdf, "3. Sistema de Baja Presión", sistema_baja, FIRST_COL_LEFT, ITEM_W, COL_W)
         create_checkbox_table(pdf, "4. Sistema absorbedor", sistema_absorbedor, FIRST_COL_LEFT, ITEM_W, COL_W)
         
-        # PARTE DEL PUNTO 5 (5.1 al 5.6) en columna izquierda
+        # 5.1 al 5.6 en col izquierda
         vm_col_izq = ventilador_mecanico[:6]
         create_checkbox_table(pdf, "5. Ventilador mecánico", vm_col_izq, FIRST_COL_LEFT, ITEM_W, COL_W, draw_footer=True)
 
         # ======= COLUMNA DERECHA =======
         pdf.set_y(content_y_base)
-        # PARTE DEL PUNTO 5 (5.7 al 5.8) en columna derecha con subtítulo
+        # PARTE 5.7 y 5.8: Sin cabecera (draw_header=False) para eliminar "5. Ventilador mecánico (Cont.) OK NO N/A"
         vm_col_der = ventilador_mecanico[6:]
-        create_checkbox_table(pdf, "5. Ventilador mecánico (Cont.)", vm_col_der, SECOND_COL_LEFT, ITEM_W, COL_W, 
-                              subtitle="Verifique que el equipo realiza las siguientes acciones:", draw_header=True)
+        create_checkbox_table(pdf, "", vm_col_der, SECOND_COL_LEFT, ITEM_W, COL_W, 
+                              subtitle="Verifique que el equipo realiza las siguientes acciones:", 
+                              draw_header=False, draw_footer=True)
         
         create_checkbox_table(pdf, "6. Seguridad eléctrica", seguridad_electrica, SECOND_COL_LEFT, ITEM_W, COL_W)
         
