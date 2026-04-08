@@ -102,7 +102,7 @@ def draw_si_no_boxes(pdf, x, y, selected, size=4.5, gap=4, text_gap=1.5, label_w
 
 def create_checkbox_table(pdf, section_title, items, x_pos, item_w, col_w,
                           row_h=3.4, head_fs=7.2, cell_fs=6.2,
-                          indent_w=5.0, title_tab_spaces=2):
+                          indent_w=5.0, title_tab_spaces=2, subtitle=None):
     title_prefix = " " * (title_tab_spaces * 2)
     pdf.set_x(x_pos)
     pdf.set_fill_color(230, 230, 230); pdf.set_text_color(0, 0, 0)
@@ -113,26 +113,24 @@ def create_checkbox_table(pdf, section_title, items, x_pos, item_w, col_w,
     pdf.cell(col_w, row_h, "NO",  border=1, ln=0, align="C", fill=True)
     pdf.cell(col_w, row_h, "N/A", border=1, ln=1, align="C", fill=True)
 
-    pdf.set_font("Arial", "", cell_fs)
-    for item, value in items:
+    if subtitle:
         pdf.set_x(x_pos)
-        pdf.cell(indent_w, row_h, "", border=0, ln=0)
-        pdf.cell(max(1, item_w - indent_w), row_h, item, border=0, ln=0, align="L")
-        pdf.cell(col_w, row_h, "X" if value == "OK" else "", border=1, ln=0, align="C")
-        pdf.cell(col_w, row_h, "X" if value == "NO" else "", border=1, ln=0, align="C")
-        pdf.cell(col_w, row_h, "X" if value == "N/A" else "", border=1, ln=1, align="C")
-    pdf.ln(1.6)
+        pdf.set_font("Arial", "I", cell_fs)
+        pdf.cell(item_w + (col_w * 3), row_h, f"{title_prefix}  {subtitle}", border="LR", ln=1, align="L")
 
-def create_rows_only(pdf, items, x_pos, item_w, col_w, row_h=3.4, cell_fs=6.2, indent_w=5.0):
     pdf.set_font("Arial", "", cell_fs)
     for item, value in items:
         pdf.set_x(x_pos)
-        pdf.cell(indent_w, row_h, "", border=0, ln=0)
+        pdf.cell(indent_w, row_h, "", border="L", ln=0)
         pdf.cell(max(1, item_w - indent_w), row_h, item, border=0, ln=0, align="L")
         pdf.cell(col_w, row_h, "X" if value == "OK" else "", border=1, ln=0, align="C")
         pdf.cell(col_w, row_h, "X" if value == "NO" else "", border=1, ln=0, align="C")
         pdf.cell(col_w, row_h, "X" if value == "N/A" else "", border=1, ln=1, align="C")
-    pdf.ln(1.4)
+    
+    # Línea de cierre inferior
+    pdf.set_x(x_pos)
+    pdf.cell(item_w + (col_w * 3), 0.1, "", border="T", ln=1)
+    pdf.ln(1.6)
 
 def draw_boxed_text_auto(pdf, x, y, w, min_h, title, text,
                           head_h=4.6, fs_head=7.2, fs_body=7.0,
@@ -201,6 +199,7 @@ def draw_analisis_columns(pdf, x_start, y_start, col_w, data_list):
 def main():
     st.title("Pauta de Mantenimiento Preventivo - Máquina de Anestesia")
 
+    # Datos Generales
     marca = st.text_input("MARCA")
     modelo = st.text_input("MODELO")
     ideq = st.text_input("IDEQ")
@@ -310,18 +309,19 @@ def main():
         create_checkbox_table(pdf, "4. Sistema absorbedor", sistema_absorbedor, FIRST_COL_LEFT, ITEM_W, COL_W)
 
         # ======= COLUMNA DERECHA =======
-        pdf.set_y(content_y_base); pdf.set_x(SECOND_COL_LEFT); pdf.set_font("Arial", "B", 7.2); pdf.cell(ITEM_W, 3.4, "  5. Ventilador mecánico", border=1, ln=1, fill=True)
-        vm_izq = [it for it in ventilador_mecanico if not (it[0].startswith("5.7") or it[0].startswith("5.8"))]
-        create_rows_only(pdf, vm_izq, SECOND_COL_LEFT, ITEM_W, COL_W)
-        vm_der = [it for it in ventilador_mecanico if it[0].startswith("5.7") or it[0].startswith("5.8")]
-        create_rows_only(pdf, vm_der, SECOND_COL_LEFT, ITEM_W, COL_W)
+        pdf.set_y(content_y_base)
+        # Seccion 5 con el subtitulo solicitado y todos los items en orden
+        create_checkbox_table(pdf, "5. Ventilador mecánico", ventilador_mecanico, SECOND_COL_LEFT, ITEM_W, COL_W, subtitle="Verifique que el equipo realiza las siguientes acciones:")
+        
         create_checkbox_table(pdf, "6. Seguridad eléctrica", seguridad_electrica, SECOND_COL_LEFT, ITEM_W, COL_W)
+        
         pdf.set_x(SECOND_COL_LEFT); pdf.set_font("Arial", "B", 7.5); pdf.cell(col_total_w, 4.0, "  7. Instrumentos de análisis", border=1, ln=1, fill=True)
         y_analisis = draw_analisis_columns(pdf, SECOND_COL_LEFT, pdf.get_y(), col_total_w, st.session_state.analisis_equipos)
+        
         pdf.set_y(y_analisis); draw_boxed_text_auto(pdf, SECOND_COL_LEFT, pdf.get_y(), col_total_w, 8, "  Observaciones", observaciones)
         pdf.ln(2); draw_si_no_boxes(pdf, SECOND_COL_LEFT, pdf.get_y(), operativo, size=4.5, label_w=40)
 
-        # --- SECCIÓN TÉCNICO Y FIRMA (SIN NEGRITA) ---
+        # --- SECCIÓN TÉCNICO (SIN NEGRITA) ---
         pdf.ln(2); pdf.set_x(SECOND_COL_LEFT); pdf.set_font("Arial", "", 7.5)
         pdf.cell(0, 4, f"NOMBRE TÉCNICO/INGENIERO: {tecnico}", 0, 1)
         y_firma_tec = pdf.get_y() + 1; pdf.set_x(SECOND_COL_LEFT); pdf.cell(14, 4, "FIRMA:", 0, 0)
@@ -330,7 +330,7 @@ def main():
 
         pdf.ln(2); draw_boxed_text_auto(pdf, SECOND_COL_LEFT, pdf.get_y(), col_total_w, 8, "  Observaciones (uso interno)", observaciones_interno)
 
-        # --- SECCIÓN RECEPCIÓN CONFORME (CENTRADAS DINÁMICAMENTE) ---
+        # --- SECCIÓN RECEPCIÓN CONFORME ---
         pdf.ln(5); y_base_firmas = pdf.get_y(); ancho_medio = col_total_w / 2
         centro_izq = SECOND_COL_LEFT + (ancho_medio / 2); centro_der = SECOND_COL_LEFT + ancho_medio + (ancho_medio / 2)
         
