@@ -199,31 +199,24 @@ def draw_analisis_columns(pdf, x_start, y_start, col_w, data_list):
 
 # ========= app =========
 def main():
-    st.set_page_config(page_title="Pauta Mantenimiento Anestesia", layout="wide")
     st.title("Pauta de Mantenimiento Preventivo - Máquina de Anestesia")
 
-    # --- Sección de Marca con Menú Desplegable ---
-    st.subheader("Información del Equipo")
-    col_info1, col_info2 = st.columns(2)
-    
-    with col_info1:
-        opciones_marcas = ["", "DATEX OHMEDA", "DRAGER", "MINDRAY", "GENERAL ELECTRIC", "+ Añadir nueva marca"]
-        seleccion_marca = st.selectbox("MARCA", opciones_marcas, index=0)
-        
-        # Lógica para añadir marca personalizada
-        if seleccion_marca == "+ Añadir nueva marca":
-            marca = st.text_input("Escriba la marca personalizada:")
-        else:
-            marca = seleccion_marca
-            
-        modelo = st.text_input("MODELO")
-        ideq = st.text_input("IDEQ")
-    
-    with col_info2:
-        sn = st.text_input("NÚMERO DE SERIE")
-        inventario = st.text_input("NÚMERO DE INVENTARIO")
-        fecha = st.date_input("FECHA", value=datetime.date.today())
-        ubicacion = st.text_input("UBICACIÓN")
+    # --- Lógica de Marca con menú desplegable ---
+    opciones_marcas = ["", "DATEX OHMEDA", "DRAGER", "MINDRAY", "GENERAL ELECTRIC", "+ Añadir nueva marca"]
+    seleccion_marca = st.selectbox("MARCA", opciones_marcas)
+
+    # Si selecciona añadir nueva, mostramos el input con el texto solicitado
+    if seleccion_marca == "+ Añadir nueva marca":
+        marca = st.text_input("Escribe el nombre de la nueva marca")
+    else:
+        marca = seleccion_marca
+
+    modelo = st.text_input("MODELO")
+    ideq = st.text_input("IDEQ")
+    sn = st.text_input("NÚMERO DE SERIE")
+    inventario = st.text_input("NÚMERO DE INVENTARIO")
+    fecha = st.date_input("FECHA", value=datetime.date.today())
+    ubicacion = st.text_input("UBICACIÓN")
 
     def checklist(title, items):
         st.subheader(title)
@@ -250,7 +243,7 @@ def main():
         col_eq, col_btn = st.columns([0.9, 0.1])
         with col_eq:
             st.session_state.analisis_equipos[i]['equipo'] = st.text_input("Equipo", key=f"equipo_{i}")
-            st.session_state.analisis_equipos[i]['marca']  = st.text_input("Marca",  key=f"marca_analisis_{i}")
+            st.session_state.analisis_equipos[i]['marca']  = st.text_input("Marca",  key=f"marca_{i}")
             st.session_state.analisis_equipos[i]['modelo'] = st.text_input("Modelo", key=f"modelo_{i}")
             st.session_state.analisis_equipos[i]['serie']  = st.text_input("Número de Serie", key=f"serie_{i}")
         if i > 0:
