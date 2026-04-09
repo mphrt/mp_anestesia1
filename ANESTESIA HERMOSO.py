@@ -205,6 +205,7 @@ def main():
     marcas_base = ["DATEX OHMEDA", "DRAGER", "MINDRAY", "GENERAL ELECTRIC"]
     opciones_marcas = [""] + sorted(marcas_base) + ["+ Añadir nueva marca"]
     
+    ideq = st.text_input("IDEQ")
     seleccion_marca = st.selectbox("MARCA", opciones_marcas)
     if seleccion_marca == "+ Añadir nueva marca":
         marca = st.text_input("Escribe el nombre de la nueva marca")
@@ -221,7 +222,6 @@ def main():
     else:
         modelo = seleccion_modelo
 
-    ideq = st.text_input("IDEQ")
     sn = st.text_input("NÚMERO DE SERIE")
     inventario = st.text_input("NÚMERO DE INVENTARIO")
     fecha = st.date_input("FECHA", value=datetime.date.today())
