@@ -200,23 +200,28 @@ def draw_analisis_columns(pdf, x_start, y_start, col_w, data_list):
 # ========= app =========
 def main():
     st.title("Pauta de Mantenimiento Preventivo - Máquina de Anestesia")
-    ideq = st.text_input("IDEQ")
-    # --- Lógica de MARCA ---
-    opciones_marcas = ["", "DATEX OHMEDA", "DRAGER", "MINDRAY", "GENERAL ELECTRIC", "+ Añadir nueva marca"]
+
+    # --- Lógica de MARCA (Ordenada Alfabéticamente) ---
+    marcas_base = ["DATEX OHMEDA", "DRAGER", "MINDRAY", "GENERAL ELECTRIC"]
+    opciones_marcas = [""] + sorted(marcas_base) + ["+ Añadir nueva marca"]
+    
     seleccion_marca = st.selectbox("MARCA", opciones_marcas)
     if seleccion_marca == "+ Añadir nueva marca":
         marca = st.text_input("Escribe el nombre de la nueva marca")
     else:
         marca = seleccion_marca
 
-    # --- Lógica de MODELO ---
-    opciones_modelos = ["", "AESPIRE 7100", "AESPIRE 7900", "FABIUS MRI", "A7", "ASPIRE VIEW", "CARESTATION 650", "A8", "+ Añadir nuevo modelo"]
+    # --- Lógica de MODELO (Ordenada Alfabéticamente) ---
+    modelos_base = ["AESPIRE 7100", "AESPIRE 7900", "FABIUS MRI", "A7", "ASPIRE VIEW", "CARESTATION 650", "A8"]
+    opciones_modelos = [""] + sorted(modelos_base) + ["+ Añadir nuevo modelo"]
+    
     seleccion_modelo = st.selectbox("MODELO", opciones_modelos)
     if seleccion_modelo == "+ Añadir nuevo modelo":
         modelo = st.text_input("Escribe el nombre del nuevo modelo")
     else:
         modelo = seleccion_modelo
 
+    ideq = st.text_input("IDEQ")
     sn = st.text_input("NÚMERO DE SERIE")
     inventario = st.text_input("NÚMERO DE INVENTARIO")
     fecha = st.date_input("FECHA", value=datetime.date.today())
@@ -247,7 +252,7 @@ def main():
         col_eq, col_btn = st.columns([0.9, 0.1])
         with col_eq:
             st.session_state.analisis_equipos[i]['equipo'] = st.text_input("Equipo", key=f"equipo_{i}")
-            st.session_state.analisis_equipos[i]['marca']  = st.text_input("Marca",  key=f"marca_{i}")
+            st.session_state.analisis_equipos[i]['marca']  = st.text_input("Marca",  key=f"marca_inst_{i}")
             st.session_state.analisis_equipos[i]['modelo'] = st.text_input("Modelo", key=f"modelo_inst_{i}")
             st.session_state.analisis_equipos[i]['serie']  = st.text_input("Número de Serie", key=f"serie_{i}")
         if i > 0:
