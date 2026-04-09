@@ -119,23 +119,19 @@ def create_checkbox_table(pdf, section_title, items, x_pos, item_w, col_w,
     if subtitle:
         pdf.set_x(x_pos)
         pdf.set_font("Arial", "I", cell_fs)
-        # Sin borde izquierdo (R = Right, T = Top si no hay header)
         border_type = "R" if draw_header else "RT"
         pdf.cell(item_w + (col_w * 3), row_h, f"{title_prefix}  {subtitle}", border=border_type, ln=1, align="L")
 
     pdf.set_font("Arial", "", cell_fs)
     for item, value in items:
         pdf.set_x(x_pos)
-        # Eliminado borde "L" (izquierdo) de la celda de indentación y del ítem
         pdf.cell(indent_w, row_h, "", border=0, ln=0)
         pdf.cell(max(1, item_w - indent_w), row_h, item, border=0, ln=0, align="L")
-        # Las celdas de OK/NO/N/A mantienen sus bordes para las cajas
         pdf.cell(col_w, row_h, "X" if value == "OK" else "", border=1, ln=0, align="C")
         pdf.cell(col_w, row_h, "X" if value == "NO" else "", border=1, ln=0, align="C")
         pdf.cell(col_w, row_h, "X" if value == "N/A" else "", border=1, ln=1, align="C")
     
     if draw_footer:
-        # Eliminada la línea horizontal de cierre ("T")
         pdf.ln(1.6)
 
 def draw_boxed_text_auto(pdf, x, y, w, min_h, title, text,
@@ -203,15 +199,31 @@ def draw_analisis_columns(pdf, x_start, y_start, col_w, data_list):
 
 # ========= app =========
 def main():
+    st.set_page_config(page_title="Pauta Mantenimiento Anestesia", layout="wide")
     st.title("Pauta de Mantenimiento Preventivo - Máquina de Anestesia")
 
-    marca = st.text_input("MARCA")
-    modelo = st.text_input("MODELO")
-    ideq = st.text_input("IDEQ")
-    sn = st.text_input("NÚMERO DE SERIE")
-    inventario = st.text_input("NÚMERO DE INVENTARIO")
-    fecha = st.date_input("FECHA", value=datetime.date.today())
-    ubicacion = st.text_input("UBICACIÓN")
+    # --- Sección de Marca con Menú Desplegable ---
+    st.subheader("Información del Equipo")
+    col_info1, col_info2 = st.columns(2)
+    
+    with col_info1:
+        opciones_marcas = ["", "DATEX OHMEDA", "DRAGER", "MINDRAY", "GENERAL ELECTRIC", "+ Añadir nueva marca"]
+        seleccion_marca = st.selectbox("MARCA", opciones_marcas, index=0)
+        
+        # Lógica para añadir marca personalizada
+        if seleccion_marca == "+ Añadir nueva marca":
+            marca = st.text_input("Escriba la marca personalizada:")
+        else:
+            marca = seleccion_marca
+            
+        modelo = st.text_input("MODELO")
+        ideq = st.text_input("IDEQ")
+    
+    with col_info2:
+        sn = st.text_input("NÚMERO DE SERIE")
+        inventario = st.text_input("NÚMERO DE INVENTARIO")
+        fecha = st.date_input("FECHA", value=datetime.date.today())
+        ubicacion = st.text_input("UBICACIÓN")
 
     def checklist(title, items):
         st.subheader(title)
@@ -238,7 +250,7 @@ def main():
         col_eq, col_btn = st.columns([0.9, 0.1])
         with col_eq:
             st.session_state.analisis_equipos[i]['equipo'] = st.text_input("Equipo", key=f"equipo_{i}")
-            st.session_state.analisis_equipos[i]['marca']  = st.text_input("Marca",  key=f"marca_{i}")
+            st.session_state.analisis_equipos[i]['marca']  = st.text_input("Marca",  key=f"marca_analisis_{i}")
             st.session_state.analisis_equipos[i]['modelo'] = st.text_input("Modelo", key=f"modelo_{i}")
             st.session_state.analisis_equipos[i]['serie']  = st.text_input("Número de Serie", key=f"serie_{i}")
         if i > 0:
@@ -331,7 +343,7 @@ def main():
         pdf.set_y(y_analisis); draw_boxed_text_auto(pdf, SECOND_COL_LEFT, pdf.get_y(), col_total_w, 8, "  Observaciones", observaciones)
         pdf.ln(2); draw_si_no_boxes(pdf, SECOND_COL_LEFT, pdf.get_y(), operativo, size=4.5, label_w=40)
 
-        # --- SECCIÓN TÉCNICO (SIN NEGRITA) ---
+        # --- SECCIÓN TÉCNICO ---
         pdf.ln(2); pdf.set_x(SECOND_COL_LEFT); pdf.set_font("Arial", "", 7.5)
         pdf.cell(0, 4, f"NOMBRE TÉCNICO/INGENIERO: {tecnico}", 0, 1)
         y_firma_tec = pdf.get_y() + 1; pdf.set_x(SECOND_COL_LEFT); pdf.cell(14, 4, "FIRMA:", 0, 0)
