@@ -200,19 +200,23 @@ def draw_analisis_columns(pdf, x_start, y_start, col_w, data_list):
 # ========= app =========
 def main():
     st.title("Pauta de Mantenimiento Preventivo - Máquina de Anestesia")
-
-    # --- Lógica de Marca con menú desplegable ---
+    ideq = st.text_input("IDEQ")
+    # --- Lógica de MARCA ---
     opciones_marcas = ["", "DATEX OHMEDA", "DRAGER", "MINDRAY", "GENERAL ELECTRIC", "+ Añadir nueva marca"]
     seleccion_marca = st.selectbox("MARCA", opciones_marcas)
-
-    # Si selecciona añadir nueva, mostramos el input con el texto solicitado
     if seleccion_marca == "+ Añadir nueva marca":
         marca = st.text_input("Escribe el nombre de la nueva marca")
     else:
         marca = seleccion_marca
 
-    modelo = st.text_input("MODELO")
-    ideq = st.text_input("IDEQ")
+    # --- Lógica de MODELO ---
+    opciones_modelos = ["", "AESPIRE 7100", "AESPIRE 7900", "FABIUS MRI", "A7", "ASPIRE VIEW", "CARESTATION 650", "A8", "+ Añadir nuevo modelo"]
+    seleccion_modelo = st.selectbox("MODELO", opciones_modelos)
+    if seleccion_modelo == "+ Añadir nuevo modelo":
+        modelo = st.text_input("Escribe el nombre del nuevo modelo")
+    else:
+        modelo = seleccion_modelo
+
     sn = st.text_input("NÚMERO DE SERIE")
     inventario = st.text_input("NÚMERO DE INVENTARIO")
     fecha = st.date_input("FECHA", value=datetime.date.today())
@@ -244,7 +248,7 @@ def main():
         with col_eq:
             st.session_state.analisis_equipos[i]['equipo'] = st.text_input("Equipo", key=f"equipo_{i}")
             st.session_state.analisis_equipos[i]['marca']  = st.text_input("Marca",  key=f"marca_{i}")
-            st.session_state.analisis_equipos[i]['modelo'] = st.text_input("Modelo", key=f"modelo_{i}")
+            st.session_state.analisis_equipos[i]['modelo'] = st.text_input("Modelo", key=f"modelo_inst_{i}")
             st.session_state.analisis_equipos[i]['serie']  = st.text_input("Número de Serie", key=f"serie_{i}")
         if i > 0:
             with col_btn:
